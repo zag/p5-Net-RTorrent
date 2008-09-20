@@ -1,6 +1,6 @@
 #$Id$
 
-XML::Handler::ExtOn 
+Net::RTorrent
 ========================
 
 XML::Handler::ExtOn - The handler for expansion of Perl SAX by objects.
