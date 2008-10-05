@@ -3,7 +3,7 @@
 Net::RTorrent
 ========================
 
-XML::Handler::ExtOn - The handler for expansion of Perl SAX by objects.
+Net::RTorrent - Perl interface to rtorrent via XML-RPC.
 
 INSTALLATION
 
@@ -18,8 +18,8 @@ DEPENDENCIES
 
 This module requires  Perl 5.005 or greater and libraries:
 
-* XML::SAX
-* Tie::UnionHash
+* RPC::XML
+* Collection
 
 
 AUTHOR
@@ -30,7 +30,7 @@ zag@cpan.org
 COPYRIGHT AND LICENCE
 
 
-Copyright (C) 2007 Zahatski Aliaksandr
+Copyright (C) 2008 Zahatski Aliaksandr
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
