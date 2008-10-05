@@ -1,5 +1,9 @@
-Revision history for Perl extension XML::PSAX.
+Revision history for Perl extension Net::RTorrent.
 #$Id$
+
+0.02
+    - add system_stat
+    - add load_raw
 
 0.01
     - create classes
