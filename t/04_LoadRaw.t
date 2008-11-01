@@ -37,7 +37,6 @@ foreach my $dl (@$keys) {
 
 #test for upload
 my $file = 't/setup_punto_switcher_30.exe.torrent';
-$file = 't/igromania_10_2008_HQ.pdf.torrent';
 my $data;
 {
     local $/ = undef;

@@ -116,15 +116,25 @@ sub get_downloads {
     return new Net::RTorrent::Downloads:: $self->_cli, $view;
 }
 
-=head2 load_raw [\$raw_data || new IO::File ], [1||0]
+=head2 load_raw [\$raw_data || new IO::File ], [ start_now=>1||0 , tag=><string>]
 
 load torrent from file descriptor or scalar ref.
 
+Params:
+
 =over 2 
 
-=item 1 - start download now (default)
+=item start_now  - start torent now
 
-=item 0 - not start download
+1 - start download now (default)
+
+0 - not start download
+
+=item tag - save <string> to rtorrent
+
+For read tag value use:
+
+    $ditem->tag
 
 =back
 
@@ -147,6 +157,7 @@ For example:
     print Dumper $obj->system_stat;
 
 Return:
+
         {
            'library_version' => '0.11.9',
            'max_memory_usage' => '-858993460', #  at my amd64 ?? 
