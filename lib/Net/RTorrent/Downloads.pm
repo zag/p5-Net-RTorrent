@@ -91,6 +91,27 @@ sub _init {
     return $self->SUPER::_init(@_);
 }
 
+=head2 _delete
+
+Call d.erase on hash_ids
+
+return { <hashid> => <xml-rpc response value> }
+
+=cut
+
+sub _delete {
+    my $self = shift;
+    my (@ids) = map { ref($_) ? $_->{id} : $_ } @_;
+    my %res = ();
+    for (@ids) {
+        my $resp = $self->_cli->send_request( 'd.erase', $_ );
+        if ( ref $resp ) {
+            $res{$_} = $resp->value;
+        }
+    }
+    return \%res;
+}
+
 sub _fetch {
     my $self = shift;
     my @ids = map { $_->{id} } @_;

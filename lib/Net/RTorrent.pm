@@ -47,7 +47,7 @@ use constant {
 };
 
 our @ISA     = qw();
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 my $attrs = {
     _cli       => undef,
     _downloads => undef
@@ -247,7 +247,10 @@ Setup your rtorrent  and Web server. My tips:
 =head3 .rtorrent
 
    scgi_port = 10.100.0.1:5000 
-
+   #for complete erase
+   on_erase = erase_complete,"execute=rm,-rf,$d.get_base_path="
+   #or for save backup 
+   on_erase = move_complete,"execute=mv,-n,$d.get_base_path=,~/erased/ ;d.set_directory=~/erased"
 
 =head3 apache.conf
 
