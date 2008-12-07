@@ -65,6 +65,7 @@ use constant {
         'd.get_up_rate='             => 'up_rate',
         'd.get_up_total='            => 'up_total',
         'd.get_uploads_max='         => 'uploads_max',
+        'd.get_custom2='             => 'custom2'
     ]
 };
 

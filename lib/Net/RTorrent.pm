@@ -47,7 +47,7 @@ use constant {
 };
 
 our @ISA     = qw();
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 my $attrs = {
     _cli       => undef,
     _downloads => undef
@@ -142,10 +142,12 @@ For read tag value use:
 
 sub load_raw {
     my $self = shift;
-    my ( $raw, $flg ) = @_;
-    $flg = 1 unless defined $flg;
-    my $command = $flg ? 'load_raw_start' : 'load_raw';
-    return $self->_cli->send_request( $command, RPC::XML::base64->new($raw) );
+    my ( $raw, %flg ) = @_;
+    $flg{start_now} = 1 unless defined $flg{start_now};
+    my $command = $flg{start_now} ? 'load_raw_start' : 'load_raw';
+    my @add =();
+    push @add, "d.set_custom2=$flg{tag}" if exists $flg{tag};
+    return $self->_cli->send_request( $command, RPC::XML::base64->new($raw), @add );
 }
 
 =head2 system_stat 
