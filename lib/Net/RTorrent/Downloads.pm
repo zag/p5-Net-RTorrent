@@ -115,7 +115,7 @@ sub _delete {
 
 sub _fetch {
     my $self = shift;
-    my @ids = map { $_->{id} } @_;
+    my @ids =  @_;
     my ( @methods, @attr_names ) = ();
     my $r         = D_ATTRIBUTES;
     my @meth2attr = @{$r};

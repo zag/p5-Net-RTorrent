@@ -1,6 +1,7 @@
 Revision history for Perl extension Net::RTorrent.
 #$Id$
-
+0.05
+    - fix Collection
 0.04
     - add d.get_custom2 support
 0.03

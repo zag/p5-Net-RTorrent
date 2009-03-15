@@ -47,7 +47,7 @@ use constant {
 };
 
 our @ISA     = qw();
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 my $attrs = {
     _cli       => undef,
     _downloads => undef
