@@ -14,13 +14,13 @@ unless ( $ENV{TEST_RPC_URL} ) {
     plan skip_all => "set TEST_RPC_URL for XML RPC SERVER";
 }
 else {
-    plan tests => 11;
+    plan tests => 9;
 }
 use_ok('Net::RTorrent');
 my $rpc_url = $ENV{TEST_RPC_URL};
 isa_ok my $obj = ( new Net::RTorrent:: $rpc_url ), 'Net::RTorrent',
   'create object';
-isa_ok my $dloads = $obj->_downloads, 'Net::RTorrent::Downloads',
+isa_ok my $dloads = $obj->get_downloads, 'Net::RTorrent::Downloads',
   'check download object';
 my $keys = $dloads->list_ids;
 ok @$keys, 'get list of keys';
@@ -31,8 +31,8 @@ isa_ok $dloads->get_one($k1), 'Net::RTorrent::DItem' ,'get item1';
 # get all items
 my $res = $dloads->get(@tmp_store);
 ok scalar( keys %$res) ==  scalar( @tmp_store), 'check counts ids and objects';
-#diag $dloads->get_one($k1)->id;
-diag Dumper ([ map { ( $_ => $res->{$_}->attr)} keys %$res]);
+ok $dloads->get_one($k1), 'check id';
+
 #########################
 # Insert your test code below, the Test::More module is use()ed here so read
 # its man page ( perldoc Test::More ) for help writing this test script.

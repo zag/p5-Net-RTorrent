@@ -10,6 +10,7 @@ use Data::Dumper;
 use strict;
 use warnings;
 use RPC::XML;
+plan skip_all => 'deprecated';
 unless ( $ENV{TEST_RPC_URL} ) {
     plan skip_all => "set TEST_RPC_URL for XML RPC SERVER";
 }
@@ -20,7 +21,7 @@ use_ok('Net::RTorrent');
 my $rpc_url = $ENV{TEST_RPC_URL};
 isa_ok my $obj = ( new Net::RTorrent:: $rpc_url ), 'Net::RTorrent',
   'create object';
-isa_ok my $dloads = $obj->_downloads, 'Net::RTorrent::Downloads',
+isa_ok my $dloads = $obj->get_downloads, 'Net::RTorrent::Downloads',
   'check download object';
 my $keys = $dloads->list_ids;
 ok @$keys, 'get list of keys';
@@ -46,7 +47,7 @@ my $data;
 };
 diag length $data;
 my $resp = $obj->load_raw( $data, 0 );
-diag Dumper $resp->value;
+#diag Dumper $resp->value;
 
 #########################
 # Insert your test code below, the Test::More module is use()ed here so read

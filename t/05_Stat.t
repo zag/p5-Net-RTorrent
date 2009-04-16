@@ -14,7 +14,7 @@ unless ( $ENV{TEST_RPC_URL} ) {
     plan skip_all => "set TEST_RPC_URL for XML RPC SERVER";
 }
 else {
-    plan tests => 11;
+    plan tests => 5;
 }
 use_ok('Net::RTorrent');
 my $rpc_url = $ENV{TEST_RPC_URL};
@@ -23,7 +23,6 @@ isa_ok my $obj = ( new Net::RTorrent:: $rpc_url ), 'Net::RTorrent',
 isa_ok my $cli = $obj->_cli, 'RPC::XML::Client', 'test cli attr';
 ok my $sys_stat  =  $obj->system_stat ,'get system_stat';
 ok $sys_stat->{pid}, 'check system.pid';
-exit;
 #########################
 # Insert your test code below, the Test::More module is use()ed here so read
 # its man page ( perldoc Test::More ) for help writing this test script.

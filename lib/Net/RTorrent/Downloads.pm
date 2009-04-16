@@ -92,11 +92,11 @@ sub _init {
     return $self->SUPER::_init(@_);
 }
 
-=head2 _delete
+=head2 delete (<info_hash1>[, <info_hash2> ... ])
 
-Call d.erase on hash_ids
+Call d.erase on I<info_hashes>.
 
-return { <hashid> => <xml-rpc response value> }
+return { <info_hashes> => <xml-rpc response value> }
 
 =cut
 
@@ -140,16 +140,35 @@ sub _fetch {
     return {};
 }
 
+=head2 fetch_one <info_hash>
+
+Return L<Net::RTorrent::DItem> object for given I<info_hash>.
+
+Or undef if I<info_hash> not exists.
+
+=cut
+
 sub fetch_one {
     my $self = shift;
     my ($obj) = values %{ $self->fetch(@_) };
     $obj;
 }
 
+=head2 fetch <info_hash1>[, <info_hash2> ... ]
+
+Return info about torrents for given I<info_hashes>.
+
+Result: ref to hash of L<Net::RTorrent::DItem> objects
+
+=cut
+
 sub fetch {
     my $self = shift;
     my @ids  = @_;
-    my $res  = $self->SUPER::fetch(@_);
+    unless ( scalar @_ ) {
+       @ids = @{$self->list_ids}
+    }
+    my $res  = $self->SUPER::fetch(@ids);
     my %res  = ();
     foreach my $key (@ids) {
         $res{$key} = $res->{$key} if exists $res->{$key};
@@ -157,10 +176,11 @@ sub fetch {
     return \%res;
 }
 
+
 sub list_ids {
     my $self = shift;
     my $cli  = $self->_cli;
-    my $resp = $cli->send_request('download_list');
+    my $resp = $cli->send_request('download_list',shift || $self->_view ||  "default");
     return ref($resp) ? $resp->value : [];
 }
 
@@ -180,7 +200,7 @@ Net::RTorrent::Downloads - collection of downloads
 =head1 SYNOPSIS
 
   my $obj =  new Net::RTorrent:: 'http://10.100.0.1:8080/scgitest';
-  my $dloads = $obj->get_downloads;
+  my $dloads = $obj->get_downloads('');
 
 =head1 ABSTRACT
  
@@ -201,7 +221,7 @@ Zahatski Aliaksandr, E<lt>zag@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008 by Zahatski Aliaksandr
+Copyright 2008-2009 by Zahatski Aliaksandr
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

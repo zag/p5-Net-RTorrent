@@ -10,7 +10,7 @@ unless ( $ENV{TEST_RPC_URL} ) {
     plan skip_all => "set TEST_RPC_URL for XML RPC SERVER";
 }
 else {
-    plan tests => 11;
+    plan tests => 2;
 }
 use_ok('Net::RTorrent');
 my $rpc_url = $ENV{TEST_RPC_URL};

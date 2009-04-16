@@ -7,6 +7,9 @@ use warnings;
 use RPC::XML;
 use RPC::XML::Client;
 use Net::RTorrent::Downloads;
+use Net::RTorrent::Socket;
+use Collection;
+our @ISA     = ();
 use Carp;
 use 5.005;
 
@@ -16,10 +19,29 @@ Net::RTorrent - Perl interface to rtorrent via XML-RPC.
 
 =head1 SYNOPSIS
 
+  #from http scgi gate
   my $obj =  new Net::RTorrent:: 'http://10.100.0.1:8080/scgitest';
-  my $dloads = $obj->get_downloads;
+  #from network address
+  my $obj =  new Net::RTorrent:: '10.100.0.1:5000';
+  #from UNIX socket
+  my $obj =  new Net::RTorrent:: '/tmp/rtorrent.sock';
+  
+  #get completed torrents list
+  my $dloads = $obj->get_downloads('complete');
+  #get all torrents list
+  my $dloads = $obj->get_downloads();
+  #get stopped torrents list
+  my $dloads = $obj->get_downloads('stopped');
+  
+  #fetch all items
+  $dloads->fetch()
+  #or by hash_info
+  $dloads->fetch_one('02DE69B09364A355F71279FC8825ADB0AC8C3A29')
+  #list oll hash_info
   my $keys = $dloads->list_ids;
-  $obj->load_raw( $torrent_raw );
+  #upload remotely
+  $obj->create( $torrent_raw );
+  $obj->create( $data, 0 );
 
 =head1 ABSTRACT
  
@@ -32,6 +54,7 @@ Net::RTorrent - short way to create tools for rtorrent.
 =cut
 
 use constant {
+    #info atributes for system info
     S_ATTRIBUTES => [
         'get_download_rate'    => 'download_rate',    #in my version dosn't work
         'get_memory_usage'     => 'memory_usage',
@@ -43,14 +66,12 @@ use constant {
         'system.hostname'         => 'hostname',
         'system.library_version'  => 'library_version',
         'system.pid'              => 'pid',
-    ]
+    ],
 };
 
-our @ISA     = qw();
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 my $attrs = {
     _cli       => undef,
-    _downloads => undef
 };
 ### install get/set accessors for this object.
 for my $key ( keys %$attrs ) {
@@ -78,8 +99,8 @@ sub new {
     my $self = bless( {}, $class );
     if (@_) {
         my $rpc_url = shift;
-        $self->_cli( RPC::XML::Client->new($rpc_url) );
-        $self->_downloads( new Net::RTorrent::Downloads:: $self->_cli );
+        my $cli_class  = $rpc_url =~m%\w+://% ? 'RPC::XML::Client': 'Net::RTorrent::Socket';
+        $self->_cli( $cli_class->new($rpc_url) );
 
     }
     else {
@@ -89,9 +110,104 @@ sub new {
     return $self;
 }
 
+=head2 create \$raw_data || new IO::File , [ start_now=>1||0 ],[ tag=><string>]
+
+Load torrent from file descriptor or scalar ref.
+
+Params:
+
+=over 2 
+
+=item start_now  - start torent now
+
+1 - start download now (default)
+
+0 - not start download
+
+=item tag - save <string> to rtorrent
+
+For read tag value use:
+
+    $ditem->tag
+
+=back
+
+=cut
+
+sub create {
+    my $self = shift;
+    my $res = $self->load_raw(@_);
+    return $res
+}
+
+
+sub load_raw {
+    my $self = shift;
+    my ( $raw, %flg ) = @_;
+    $flg{start_now} = 1 unless defined $flg{start_now};
+    my $command = $flg{start_now} ? 'load_raw_start' : 'load_raw';
+    my @add =();
+    push @add, "d.set_custom2=$flg{tag}" if exists $flg{tag};
+    return $self->_cli->send_request( $command, RPC::XML::base64->new($raw), @add );
+}
+
+
+=head2 delete (<info_hash1>[, <info_hash2> ... ])
+
+Call d.erase on I<info_hashes>.
+
+return { <info_hashes> => <xml-rpc response value> }
+
+=cut
+
+sub _delete {
+    my $self = shift;
+    my (@ids) = map { ref($_) ? $_->{id} : $_ } @_;
+    my %res = ();
+    for (@ids) {
+        my $resp = $self->_cli->send_request( 'd.erase', $_ );
+        if ( ref $resp ) {
+            $res{$_} = $resp->value;
+        }
+    }
+    return \%res;
+}
+
+
+
+=head2 list_ids ( [ <name of view> ])
+
+Return list of rtorrent I<info_hashes> for I<name of view>.
+An empty string for I<name of view> equals "default".
+
+To get list of views names :
+
+    xmlrpc http://10.100.0.1:8080/scgitest view_list
+
+  'main'
+  'default'
+  'name'
+  'started'
+  'stopped'
+  'complete'
+  'incomplete'
+  'hashing'
+  'seeding'
+  'scheduler'
+
+=cut
+
+sub list_ids {
+    my $self = shift;
+    my $cli  = $self->_cli;
+    my $resp = $cli->send_request('download_list',shift ||"default");
+    return ref($resp) ? $resp->value : [];
+}
+
+
 =head2 get_downloads [ <view name > || 'default']
 
-Return collection of downloads
+Return collection of downloads (L< Net::RTorrent::Downloads>).
 
 To get list of view:
 
@@ -116,40 +232,6 @@ sub get_downloads {
     return new Net::RTorrent::Downloads:: $self->_cli, $view;
 }
 
-=head2 load_raw [\$raw_data || new IO::File ], [ start_now=>1||0 , tag=><string>]
-
-load torrent from file descriptor or scalar ref.
-
-Params:
-
-=over 2 
-
-=item start_now  - start torent now
-
-1 - start download now (default)
-
-0 - not start download
-
-=item tag - save <string> to rtorrent
-
-For read tag value use:
-
-    $ditem->tag
-
-=back
-
-=cut
-
-sub load_raw {
-    my $self = shift;
-    my ( $raw, %flg ) = @_;
-    $flg{start_now} = 1 unless defined $flg{start_now};
-    my $command = $flg{start_now} ? 'load_raw_start' : 'load_raw';
-    my @add =();
-    push @add, "d.set_custom2=$flg{tag}" if exists $flg{tag};
-    return $self->_cli->send_request( $command, RPC::XML::base64->new($raw), @add );
-}
-
 =head2 system_stat 
 
 Return system stat.
@@ -162,7 +244,7 @@ Return:
 
         {
            'library_version' => '0.11.9',
-           'max_memory_usage' => '-858993460', #  at my amd64 ?? 
+           'max_memory_usage' => '-858993460', #  at my amd64
            'upload_rate' => '0',
            'name' => 'gate.home.zg:1378',
            'memory_usage' => '115867648',
@@ -193,12 +275,6 @@ sub system_stat {
     return \%res
 
 }
-
-=head2 remove_untied (TODO)
-
-remove_untied
-    
-=cut 
 
 =head2 do_sys_mutlicall 'method1' =>[ <param1>, .. ], ...
 
@@ -281,7 +357,7 @@ Zahatski Aliaksandr, E<lt>zag@cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008 by Zahatski Aliaksandr
+Copyright 2008-2009 by Zahatski Aliaksandr
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 

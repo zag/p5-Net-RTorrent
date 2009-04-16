@@ -1,5 +1,7 @@
 Revision history for Perl extension Net::RTorrent.
 #$Id$
+0.06
+    - add direct connect to rtorrent via INET or UNIX socket
 0.05
     - fix Collection
 0.04
