@@ -65,7 +65,9 @@ use constant {
         'd.get_up_rate='             => 'up_rate',
         'd.get_up_total='            => 'up_total',
         'd.get_uploads_max='         => 'uploads_max',
-        'd.get_custom2='             => 'custom2'
+        'd.get_custom2='             => 'custom2',
+        'd.is_active='               => 'is_active',
+        'd.is_open='                 => 'is_open'
     ]
 };
 
@@ -182,6 +184,44 @@ sub list_ids {
     my $cli  = $self->_cli;
     my $resp = $cli->send_request('download_list',shift || $self->_view ||  "default");
     return ref($resp) ? $resp->value : [];
+}
+
+=head2 start <info_hash1>[, <info_hash2> ... ]
+
+Start torrents
+
+=cut
+
+sub start {
+    my $self = shift;
+    my $cli  = $self->_cli;
+    my %res = ();
+    for (@_) {
+        my $resp = $self->_cli->send_request( 'd.start', $_ );
+        if ( ref $resp ) {
+            $res{$_} = $resp->value;
+        }
+    }
+    return \%res;
+}
+
+=head2 stop <info_hash1>[, <info_hash2> ... ]
+
+Stop torrents
+
+=cut
+
+sub stop {
+    my $self = shift;
+    my $cli  = $self->_cli;
+    my %res = ();
+    for (@_) {
+        my $resp = $self->_cli->send_request( 'd.stop', $_ );
+        if ( ref $resp ) {
+            $res{$_} = $resp->value;
+        }
+    }
+    return \%res;
 }
 
 sub _prepare_record {
