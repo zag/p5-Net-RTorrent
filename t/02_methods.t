@@ -11,7 +11,7 @@
 use Test::More;
 use Data::Dumper;
 my $addr = $ENV{TEST_RPC_URL} || $ENV{TEST_RPC_ADDR};
-unless ( TEST_RPC_ADDR ) {
+unless ( $addr ) {
     plan skip_all => "set TEST_RPC_URL || TEST_RPC_ADDR for XML RPC SERVER";
 }
 else {
