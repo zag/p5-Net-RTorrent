@@ -8,6 +8,7 @@ use RPC::XML;
 use RPC::XML::Client;
 use IO::Socket::INET;
 use IO::Socket::UNIX;
+use RPC::XML::Parser;
 use Carp;
 use 5.005;
 

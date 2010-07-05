@@ -69,7 +69,7 @@ use constant {
     ],
 };
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 my $attrs = {
     _cli       => undef,
 };
