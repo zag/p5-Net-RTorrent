@@ -35,7 +35,7 @@ Net::RTorrent::Socket - Direct connect to rtorrent via scgi proto
 =cut
 
 our @ISA     = qw();
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub new {
     my $class = shift;
@@ -56,7 +56,7 @@ sub _create_socket {
     my $self   = shift;
     my $addr   = shift || $self->{addr};
     my $type   = $addr =~ m%/% ? "IO::Socket::UNIX" : "IO::Socket::INET";
-    my $socket = $type->new( PeerAddr => $addr );
+    my $socket = $type->new( $addr );
     my $old_fh = select($socket);
     $| = 1;
     select($old_fh);

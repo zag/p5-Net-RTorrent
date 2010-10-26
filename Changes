@@ -1,6 +1,9 @@
 Revision history for Perl extension Net::RTorrent.
 #$Id$
 
+0.10 Oct 26, 2010
+    - fix make instance on socket at RTorrent::Socket. ( submitted by  James Nylen )
+
 0.09 05.07.2010
     - add use directive  RPC::XML::Parser;
     - comment buggy fields ( thanks Duff aka cmacduff@)
