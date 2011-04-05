@@ -1,6 +1,9 @@
 Revision history for Perl extension Net::RTorrent.
 #$Id$
 
+0.11 Apr 5, 2011
+    - fix CPAN distr
+    
 0.10 Oct 26, 2010
     - fix make instance on socket at RTorrent::Socket. ( submitted by  James Nylen )
 
